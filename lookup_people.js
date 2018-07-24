@@ -17,7 +17,6 @@ function runQuery(query, values, cb) {
             return console.error("error running query", err);
         }
         cb(result);
-        client.end();    
     });
 }
 
@@ -26,13 +25,14 @@ client.connect((err) => {
     return console.error("Connection Error", err);
   }
   const query = "SELECT first_name, last_name, TO_CHAR(birthdate, 'yyyy-mm-dd') AS birthdate FROM famous_people WHERE first_name = $1::text";
-  
-  runQuery(query, [arg], (data) => {
+
+  runQuery(query, [arg], logFamousPeople);
+});
+
+function logFamousPeople(result) {
     console.log("Searching ...");
-    console.log(`Found ${data.rowCount} person(s) by the name '${arg}':`)
-    data.rows.forEach((person, index) => {
+    console.log(`Found ${result.rowCount} person(s) by the name '${arg}':`)
+    result.rows.forEach((person, index) => {
         console.log(`- ${index + 1}: ${person.first_name} ${person.last_name}, born ${person.birthdate}`); 
     });
-    client.end();
-  });
-});
+}
